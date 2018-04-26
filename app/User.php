@@ -47,6 +47,8 @@ class User extends Model implements AuthenticatableContract,
         return $this->belongsToMany(User::class, 'user_follow', 'user_id', 'follow_id')->withTimestamps();
     }
     
+    
+    
     public function followers()
     {
         return $this->belongsToMany(User::class, 'user_follow', 'follow_id', 'user_id')->withTimestamps();
@@ -55,9 +57,9 @@ class User extends Model implements AuthenticatableContract,
     
     public function follow($userId) { // 既にフォローしているかの確認 
 
-$exist = $this->is_following($userId); // 自分自身ではないかの確認 
+    $exist = $this->is_following($userId); // 自分自身ではないかの確認 
 
-$its_me = $this->id == $userId;
+    $its_me = $this->id == $userId;
 
     if ($exist || $its_me) {
 
@@ -104,7 +106,67 @@ $its_me = $this->id == $userId;
         $follow_user_ids[] = $this->id;
         return Micropost::whereIn('user_id', $follow_user_ids);
     }
+ 
+ 
+ 
+ 
+    public function favoring()
+    {
+        return $this->belongsToMany(User::class, 'micropost_fav', 'user_id', 'fav_id')->withTimestamps();
+    } //お気に入りの取得
+
+
+    public function fav($micropostId) { // 
+
+    $exist = $this->is_fav($micropostId); // 既にファボがあるか
+
     
+
+        if ($exist) {
+
+        // 既にフォローしていれば何もしない
+
+        return false;
+
+    } else {
+
+        // 未フォローであればフォローする
+
+        $this->favoring()->attach($micropostId);
+
+        return true;
+
+    }
+    }
+    
+    
+    
+    
+    
+    
+    
+ public function unfav($micropostId)
+    {
+    // 既にフォローしているかの確認
+    $exist = $this->is_fav($micropostId);
+    
+    if ($exist) {
+        // 既にフォローしていればフォローを外す
+        $this->favoring()->detach($micropostId);
+        return true;
+    } else {
+        // 未フォローであれば何もしない
+        return false;
+    }
+ }   
+
+    
+ 
+    public function is_fav($micropostId) {
+    return $this->favoring()->where('fav_id', $micropostId)->exists();
+ }
+ 
+ 
+ 
     
 }
-
