@@ -57,42 +57,43 @@ class User extends Model implements AuthenticatableContract,
     
     public function follow($userId) { // 既にフォローしているかの確認 
 
-    $exist = $this->is_following($userId); // 自分自身ではないかの確認 
+        $exist = $this->is_following($userId); // 自分自身ではないかの確認 
 
-    $its_me = $this->id == $userId;
+        $its_me = $this->id == $userId;
 
-    if ($exist || $its_me) {
+        if ($exist || $its_me) {
 
-        // 既にフォローしていれば何もしない
+            // 既にフォローしていれば何もしない
 
-        return false;
+            return false;
 
-    } else {
+        } else {
 
-        // 未フォローであればフォローする
+            // 未フォローであればフォローする
 
-        $this->followings()->attach($userId);
+            $this->followings()->attach($userId);
 
-        return true;
+            return true;
 
         }
     }
 
+
     public function unfollow($userId)
     {
-    // 既にフォローしているかの確認
-    $exist = $this->is_following($userId);
-    // 自分自身ではないかの確認
-    $its_me = $this->id == $userId;
+        // 既にフォローしているかの確認
+        $exist = $this->is_following($userId);
+        // 自分自身ではないかの確認
+        $its_me = $this->id == $userId;
 
-    if ($exist && !$its_me) {
-        // 既にフォローしていればフォローを外す
-        $this->followings()->detach($userId);
-        return true;
-    } else {
+        if ($exist && !$its_me) {
+            // 既にフォローしていればフォローを外す
+            $this->followings()->detach($userId);
+            return true;
+        } else {
         // 未フォローであれば何もしない
         return false;
-    }
+        }
     }
 
     public function is_following($userId) {
@@ -109,34 +110,36 @@ class User extends Model implements AuthenticatableContract,
  
  
  
- 
     public function favoring()
     {
-        return $this->belongsToMany(User::class, 'micropost_fav', 'user_id', 'fav_id')->withTimestamps();
+        return $this->belongsToMany(Micropost::class, 'user_fav', 'user_id', 'fav_id')->withTimestamps();
     } //お気に入りの取得
 
 
+    
+    
+    
+    
+    
     public function fav($micropostId) { // 
 
     $exist = $this->is_fav($micropostId); // 既にファボがあるか
 
-    
-
         if ($exist) {
 
-        // 既にフォローしていれば何もしない
+        // 既にfavしていれば何もしない
 
         return false;
 
     } else {
 
-        // 未フォローであればフォローする
+        // 未favであればfavする
 
         $this->favoring()->attach($micropostId);
 
         return true;
 
-    }
+     }
     }
     
     
@@ -147,24 +150,24 @@ class User extends Model implements AuthenticatableContract,
     
  public function unfav($micropostId)
     {
-    // 既にフォローしているかの確認
+        
     $exist = $this->is_fav($micropostId);
     
     if ($exist) {
-        // 既にフォローしていればフォローを外す
+        // 既にfavしていればfavを外す
         $this->favoring()->detach($micropostId);
         return true;
     } else {
-        // 未フォローであれば何もしない
+        // 未favであれば何もしない
         return false;
     }
- }   
+    }   
 
     
  
     public function is_fav($micropostId) {
     return $this->favoring()->where('fav_id', $micropostId)->exists();
- }
+    }
  
  
  

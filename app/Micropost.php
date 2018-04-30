@@ -17,4 +17,6 @@ class Micropost extends Model
     {
         return $this->hasMany(Micropost::class);
     }
+    
+
 }
